@@ -1,0 +1,25 @@
+{"questions":
+[
+  {"question":"def is the key word for creating a function/module",
+   "answer type":"TF",
+   "correct answer":"T",
+   "possible answers":["T", "F"]},
+
+   {"question":"Fill in the blank: \ndef is_even(value): \n  if value % _ == 0: \n    return True \n  else: \n    return False",
+   "answer type":"MC",
+   "correct answer":"C",
+   "possible answers":["1", "3", "2", "0"]},
+
+   {"question":"Fill in the blank: \nclass Animal(Creature): \n  ... \nclass Dog(______): \n  ...",
+   "answer type":"MC",
+   "correct answer":"D",
+   "possible answers":["Creature", "Dog", "Cat", "Animal"]},
+
+   {"question":"Which Python code is a proper input setinel loop?",
+   "answer type":"MC",
+   "correct answer":"B",
+   "possible answers":["while True: \n  value = int(input(MESSAGE)) \n\n  if value == SETINEL: \n    break \n\n  # Code goes here",
+   "value = get_integer(MESSAGE) \n\nwhile value != SETINEL: \n  # Code goes here \n  value = get_integer(MESSAGE)",
+   "while True: \n  value = int(input(MESSAGE)) \n\n  # Code goes here \n\n  if value == SETINEL: \n    break",
+   "What is that?"]}
+]}

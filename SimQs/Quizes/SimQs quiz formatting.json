@@ -1,0 +1,111 @@
+{
+  "questions":
+  [
+    {"question":"How is the 'questions' entry formatted?",
+     "answer type":"mc",
+     "correct answer":"c",
+     "possible answers":["[\"questions\": [...]]",
+                         "{\"questions\": {...}}",
+                         "{\"questions\": [...]}",
+                         "[\"questions\": {...}]"]},
+
+    {"question":"Square brackets indicate objects in JSON and curly brackets indicate lists in JSON.",
+     "answer type":"tF",
+     "correct answer":"f",
+     "possible answers":["w"]},
+
+    {"question":"Which one of these are wrong?",
+     "answer type":"mc",
+     "correct answer":"B",
+     "possible answers":[
+                         "{\n     \"questions\":\n     [\n      {\"question\":\"example question?\"\n       \"correct answer\":\"c\"\n       \"answer type\":\"Mc\"\n       \"possible answers\":[\n         \"this answer\",\n         \"or this answer\",\n         \"or even this answer\"]\n      }\n     ]\n    }",
+
+                         "{\n     \"questions\":\n     [\n      {\"question\":\"example question?\"\n       \"correct answer\":\"c\"\n       \"answer type\":\"Mc\"\n       \"Possible answers\":[\n         \"this answer\",\n         \"or this answer\",\n         \"or even this answer\"]\n      }\n     ]\n    }",
+
+                         "{\n     \"questions\":\n     [\n      {\"correct answer\":\"c\"\n       \"answer type\":\"Mc\"\n       \"possible answers\":[\n         \"this answer\",\n         \"or this answer\",\n         \"or even this answer\"]\n       \"question\":\"example question?\"\n      }\n     ]\n    }",
+
+                         "{\n     \"questions\":\n     [\n      {\"answer type\":\"Mc\"\n       \"possible answers\":[\n         \"this answer\",\n         \"or this answer\",\n         \"or even this answer\"]\n       \"question\":\"example question?\"\n       \"correct answer\":\"c\"\n      }\n     ]\n    }"]},
+
+    {"question":"An error would occur if one or none the question entrys doesn't exist.",
+     "answer type":"Tf",
+     "correct answer":"T",
+     "possible answers":["w"]},
+
+    {"question":"JSON doesn't have specific syntax.",
+     "answer type":"tf",
+     "correct answer":"F",
+     "possible answers":["w"]},
+
+    {"question":"What happens if an error occurs?",
+     "answer type":"mC",
+     "correct answer":"A",
+     "possible answers":["The program tells you the error and doesn't allow the user to select the quiz.",
+                         "The program crashes.",
+                         "The program fixes the error for you.",
+                         "The program doesn't do anything."]},
+
+    {"question":"Every question entry contains entries for: question, answer type, correct answer and question number.",
+     "answer type":"Tf",
+     "correct answer":"f",
+     "possible answers":["y"]},
+
+    {"question":"Every question entry contains entries for: question, answer type, correct answer and possible answers.",
+     "answer type":"Tf",
+     "correct answer":"T",
+     "possible answers":["y"]},
+
+    {"question":"These question entries are NOT case sensitive.",
+     "answer type":"Tf",
+     "correct answer":"F",
+     "possible answers":["y"]},
+
+    {"question":"What indicates objects in JSON?",
+     "answer type":"MC",
+     "correct answer":"d",
+     "possible answers":["[]",
+                         "()",
+                         "<>",
+                         "{}"]},
+
+    {"question":"The 'questions' entry is required.",
+     "answer type":"tF",
+     "correct answer":"T",
+     "possible answers":["l"]},
+
+    {"question":"You don't need to put double quotes around entries and values. It's just a suggestion.",
+     "answer type":"TF",
+     "correct answer":"f",
+     "possible answers":["a"]},
+
+    {"question":"JSON stands for Jerry Sells Oxygen in November.",
+     "answer type":"tf",
+     "correct answer":"F",
+     "possible answers":["w"]},
+
+    {"question":"JSON stands for Java Script Object Notation.",
+     "answer type":"tf",
+     "correct answer":"T",
+     "possible answers":["e"]},
+
+    {"question":"What is an example of a list?",
+     "answer type":"Mc",
+     "correct answer":"c",
+     "possible answers":["milk, cheese, eggs, butter",
+                         "{milk, cheese, eggs, butter}",
+                         "[milk, cheese, eggs, butter]",
+                         "milkcheeseeggsbutter"]},
+    {"question":"What programming language is this SimQs written in?",
+     "answer type":"Mc",
+     "correct answer":"e",
+     "possible answers":["Java",
+                         "Rust",
+                         "C++",
+                         "C",
+                         "Python",
+                         "Java Script",
+                         "Go",
+                         "Assembly",
+                         "Scratch",
+                         "English"]}
+  ]
+}
