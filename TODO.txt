@@ -1,0 +1,9 @@
+TODO
+This is leveled from highest priority to lowest priority.
+
+1. Fix some crashing problems with when the user removes the 2 important folders.
+2. Decompose main even further.
+3. Implement quiz saving.
+4. Implement basic GUI.
+5. Implement quiz editor.
+6. Improve UI.
