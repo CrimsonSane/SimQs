@@ -23,7 +23,7 @@ def display_selection_menu(quizes):
         
         # if selection number is less than the max alphabet limit
         if quiz_select < len(CONST.NUM_TO_ALPHA):
-            print("(" + CONST.NUM_TO_ALPHA[quiz_select] + ") " + quizes[quiz_select][0])
+            print("(" + CONST.NUM_TO_ALPHA[quiz_select] + ") " + quizes[quiz_select].get_name())
             print()
                 
     # Display a message if there are no quizes
@@ -37,11 +37,11 @@ def display_selection_menu(quizes):
 
 
 # Display quiz question
-def display_question(current_question, quiz_nme, quiz_obj, current_question_nbr, answr_result):
+def display_question(current_question, quiz_obj, current_question_nbr, answr_result):
     results = quiz_obj.get_results()
     
     print("\n\n\n")
-    print("----- " + quiz_nme + " -----" + str(current_question_nbr + 1) + " / " + str(len(quiz_obj.get_questions())) + " -----")
+    print("----- " + quiz_obj.get_name() + " -----" + str(current_question_nbr + 1) + " / " + str(len(quiz_obj.get_questions())) + " -----")
     print()
     print(current_question.get_question())
     print()

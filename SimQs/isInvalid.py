@@ -1,3 +1,4 @@
+import os
 import GLOBAL_CONSTS as CONST
 
 # Start menu
@@ -121,4 +122,10 @@ def file_exists(file_path):
         return False
 
 
-#
+# checks if directory exists
+def dir_exists(dir_path):
+    if os.path.isdir(dir_path):
+        return True
+    
+    return False
+

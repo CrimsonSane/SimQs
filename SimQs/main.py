@@ -27,43 +27,28 @@ def main():
         match menu:
             # The starting page of the program
             case "START_MENU":
+                # Display start menu
                 display.display_start_menu()
                 
                 # Input
-                selection = add_inpt_val.get_letter("> ")
-                
-                # Invalid selection
-                while invalid.is_invalid_start_selection(selection):
-                    print("Error: Invalid selection, try again")
-                    selection = add_inpt_val.get_letter("> ")
+                selection = get_valid_strt_mnu_selection()
                 
                 # Execute command
-                if selection == "A":
-                    menu = "SELECTION_MENU"
-                elif selection == CONST.QUIT:
-                    menu =  "QUIT"
+                menu = execute_strt_mnu_cmd(selection)
                 
             # Select a avaliable quiz
             case "SELECTION_MENU":
                 # Get quizes
                 quizes = get_quizes()
                 
+                # Display selction menu
                 display.display_selection_menu(quizes)
                 
                 # Input
-                selection = add_inpt_val.get_letter("> ")
-                
-                # Invalid selection
-                while invalid.is_invalid_quiz_select_selection(selection, quizes):
-                    print("Error: Invalid selection, try again")
-                    selection = add_inpt_val.get_letter("> ")
+                selection = get_valid_quiz_sel_mnu_selection(quizes)
                 
                 # Execute command
-                if selection != CONST.QUIT:
-                    current_quiz = quizes[CONST.NUM_TO_ALPHA.index(selection)]
-                    menu = "QUIZ"
-                elif selection == CONST.QUIT:
-                    menu = "START_MENU"
+                current_quiz, menu = execute_quiz_sel_mnu_cmd(selection, quizes)
                 
             case "QUIZ":
                 # Catch any problems that may occur if the user happens to some how unload the current quiz
@@ -71,7 +56,6 @@ def main():
                     print("Current quiz is not set")
                     menu = "SELECTION_MENU"
                 
-                quiz_name, quiz_obj = current_quiz
                 running_quiz = True
                 current_qutn_num = 0
                 # Randomize the question order
@@ -81,79 +65,36 @@ def main():
                     current_question = quiz_questions[current_qutn_num]
                     
                     # Get the question result if there is one
-                    answer_result = get_result_frm_q_obj(quiz_obj, current_question)
+                    answer_result = get_result_frm_q_obj(current_quiz, current_question)
                     
                     # Display current question
-                    display.display_question(current_question, quiz_name, quiz_obj, current_qutn_num, answer_result)
+                    display.display_question(current_question, current_quiz, current_qutn_num, answer_result)
                     
                     # Gather user input depending on question(S to finish/submit, Q to quit, > to go to the next question, < to go back)
                     # Input
-                    selection = add_inpt_val.get_letter("> ")
-                    
-                    # Invalid selection
-                    while invalid.is_invalid_quiz_command(selection, current_question):
-                        print("Error: Invalid selection, try again")
-                        selection = add_inpt_val.get_letter("> ")
+                    selection = get_valid_quiz_plying_selection(current_question)
                     
                     # Execute command
-                    if selection == ">":
-                        # curnt question num is less than length to go next
-                        if current_qutn_num < len(quiz_questions) - 1:
-                            current_qutn_num += 1
-                    elif selection == "<":
-                        # curnt question num is less than length to go next
-                        if current_qutn_num > 0:
-                            current_qutn_num -= 1
-                    elif selection == CONST.FINISH:
-                        menu = "REPORT_MENU"
-                        running_quiz = False
-                    elif selection == CONST.QUIT:
-                        continue_quit = inpt_val.get_yes_or_no("Are you sure you want to quit the quiz? Progress will NOT be saved.(yes/no)", prompt="> ")
-                        if continue_quit:
-                            menu = "SELECTION_MENU"
-                            quiz_obj.set_results({})
-                            current_quiz = None
-                            quiz_questions = None
-                            running_quiz = False
-                    else:
-                        quiz_obj.append_results(current_question, selection)
+                    def_values = (current_quiz, current_qutn_num, running_quiz, quiz_questions, menu)
+                    
+                    current_quiz, current_qutn_num, running_quiz, quiz_questions, menu = execute_quiz_mnu_cmd(selection, def_values)
             
             case "REPORT_MENU":
-                quiz_name, quiz_obj = current_quiz
                 
                 # Process report from current quiz
-                report = get_quiz_report(quiz_obj)
+                report = get_quiz_report(current_quiz)
                 
                 # Display the report
-                display.display_report(report, quiz_questions, quiz_obj)
+                display.display_report(report, quiz_questions, current_quiz)
                 
                 # Give user options to: output to a file, play the quiz again, look at the answered questions or quit to selection menu
                 # Input
-                selection = add_inpt_val.get_letter("> ")
-                
-                # Invalid selection
-                while invalid.is_invalid_report_command(selection):
-                    print("Error: Invalid selection, try again")
-                    selection = add_inpt_val.get_letter("> ")
+                selection = get_valid_report_mnu_selection()
                 
                 # Execute command
-                if selection == CONST.OUTPUT:
-                    # Output full report to a file
-                    create_report_file(report, quiz_obj, quiz_name, quiz_questions)
-                    
-                    menu = "SELECTION_MENU"
-                    quiz_obj.set_results({})
-                    current_quiz = None
-                elif selection == CONST.PLAY_AGAIN:
-                    menu = "QUIZ"
-                    quiz_obj.set_results({})
-                elif selection == CONST.QUIT:
-                    continue_quit = inpt_val.get_yes_or_no("Are you sure you want to quit the report? Progress will NOT be saved.(yes/no)", prompt=">")
-                    if continue_quit:
-                        menu = "SELECTION_MENU"
-                        quiz_obj.set_results({})
-                        current_quiz = None
-                        quiz_questions = None
+                def_values = (current_quiz, quiz_questions, menu)
+                
+                current_quiz, quiz_questions, menu = execute_report_cmd(selection, def_values, report)
                 
             # Quit out of program
             case "QUIT":
@@ -165,31 +106,159 @@ def main():
                 running = False
 
 
-def create_report_file(report, quiz_obj, quiz_nme, questions):
+"""--- GET VALID SELECTIONS ---"""
+def get_valid_strt_mnu_selection():
+    selection = add_inpt_val.get_letter("> ")
+                
+    # Invalid selection
+    while invalid.is_invalid_start_selection(selection):
+        print("Error: Invalid selection, try again")
+        selection = add_inpt_val.get_letter("> ")
+    
+    return selection
+
+
+def get_valid_quiz_sel_mnu_selection(quizes):
+    selection = add_inpt_val.get_letter("> ")
+                
+    # Invalid selection
+    while invalid.is_invalid_quiz_select_selection(selection, quizes):
+        print("Error: Invalid selection, try again")
+        selection = add_inpt_val.get_letter("> ")
+    
+    return selection
+
+
+def get_valid_quiz_plying_selection(curnt_questn):
+    selection = add_inpt_val.get_letter("> ")
+                    
+    # Invalid selection
+    while invalid.is_invalid_quiz_command(selection, curnt_questn):
+        print("Error: Invalid selection, try again")
+        selection = add_inpt_val.get_letter("> ")
+    
+    return selection
+
+
+def get_valid_report_mnu_selection():
+    selection = add_inpt_val.get_letter("> ")
+                
+    # Invalid selection
+    while invalid.is_invalid_report_command(selection):
+        print("Error: Invalid selection, try again")
+        selection = add_inpt_val.get_letter("> ")
+    
+    return selection
+"""--- END ---"""
+
+
+"""--- EXECUTE MENU CMDS ---"""
+def execute_strt_mnu_cmd(selc):
+    if selc == "A":
+        return "SELECTION_MENU"
+    
+    elif selc == CONST.QUIT:
+        return "QUIT"
+
+
+def execute_quiz_sel_mnu_cmd(selc, quizes):
+    if selc != CONST.QUIT:
+        # Changes current quiz and menu
+        return (quizes[CONST.NUM_TO_ALPHA.index(selc)], "QUIZ")
+    
+    elif selc == CONST.QUIT:
+        return (None, "START_MENU")
+
+
+def execute_quiz_mnu_cmd(selc, defaults):
+    currnt_quiz, currnt_qutn_num, rnning_quiz, quiz_questns, mnu = defaults
+    
+    if selc == ">":
+        # curnt question num is less than length to go next
+        if currnt_qutn_num < len(quiz_questns) - 1:
+            currnt_qutn_num += 1
+            
+    elif selc == "<":
+        # curnt question num is less than length to go next
+        if currnt_qutn_num > 0:
+            currnt_qutn_num -= 1
+        
+    elif selc == CONST.FINISH:
+        mnu = "REPORT_MENU"
+        rnning_quiz = False
+    
+    elif selc == CONST.QUIT:
+        continue_quit = inpt_val.get_yes_or_no("Are you sure you want to quit the quiz? Progress will NOT be saved.(yes/no)", prompt="> ")
+        
+        if continue_quit:
+            mnu = "SELECTION_MENU"
+            currnt_quiz.set_results({})
+            currnt_quiz = None
+            quiz_questns = None
+            rnning_quiz = False
+        
+    else:
+        currnt_quiz.append_results(quiz_questns[currnt_qutn_num], selc)
+    
+    return (currnt_quiz, currnt_qutn_num, rnning_quiz, quiz_questns, mnu)
+
+
+def execute_report_cmd(selc, defaults, report):
+    currnt_quiz, quiz_questns, mnu = defaults
+    
+    if selc == CONST.OUTPUT:
+        # Output full report to a file
+        create_report_file(report, currnt_quiz, quiz_questns)
+        print("The report has been created in: " + CONST.QUIZ_REPORT_DIR)
+        
+        mnu = "SELECTION_MENU"
+        currnt_quiz.set_results({})
+        currnt_quiz = None
+        
+    elif selc == CONST.PLAY_AGAIN:
+        mnu = "QUIZ"
+        currnt_quiz.set_results({})
+    
+    elif selc == CONST.QUIT:
+        continue_quit = inpt_val.get_yes_or_no("Are you sure you want to quit the report? Progress will NOT be saved.(yes/no)", prompt="> ")
+        if continue_quit:
+            mnu = "SELECTION_MENU"
+            currnt_quiz.set_results({})
+            currnt_quiz = None
+            quiz_questns = None
+    
+    return (currnt_quiz, quiz_questns, mnu)
+"""--- END ---"""
+
+def create_report_file(report, quiz_obj, questions):
     # Create a name of the report file
     now_date = datetime.datetime.now()
     count = 0
-    file_name = quiz_nme + " Report - " + str(now_date.day) + "-" + str(now_date.day) + "-" + str(now_date.year) + ":" + str(count) +".txt"
+    file_name = quiz_obj.get_name() + " Report - " + str(now_date.day) + "-" + str(now_date.day) + "-" + str(now_date.year) + ":" + str(count) +".txt"
     
     while invalid.file_exists(os.path.join(CONST.QUIZ_REPORT_DIR, file_name)):
         count += 1
-        file_name = quiz_nme + " Report - " + str(now_date.day) + "-" + str(now_date.day) + "-" + str(now_date.year) + ":" + str(count) +".txt"
+        file_name = quiz_obj.get_name() + " Report - " + str(now_date.day) + "-" + str(now_date.day) + "-" + str(now_date.year) + ":" + str(count) +".txt"
     
     # Gather the report into a string
-    report_string = get_report_string(report, quiz_obj, quiz_nme, questions)
+    report_string = get_report_string(report, quiz_obj, questions)
+    
+    # Create directory if it does not exist
+    if not invalid.dir_exists(CONST.QUIZ_REPORT_DIR):
+        os.mkdir(CONST.QUIZ_REPORT_DIR)
     
     # Create the output file with the string
     with open(os.path.join(CONST.QUIZ_REPORT_DIR, file_name), "w") as file:
         file.write(report_string)
 
 
-def get_report_string(reprt, quiz_obj, quiz_nme, questions):
+def get_report_string(reprt, quiz_obj, questions):
     report_str = ""
     
     # (correct_answers, percnt_correct, percnt_wrong)
     cor_answers, prct_corct, prct_wrng = reprt
     
-    report_title = "-" * 50 + " " + quiz_nme + " Report " + "-"*50 + "\n\n"
+    report_title = "-" * 50 + " " + quiz_obj.get_name() + " Report " + "-"*50 + "\n\n"
     report_str += report_title
     
     report_str += "{:.2f}% Correct \n".format(prct_corct * 100)
@@ -255,7 +324,7 @@ def get_report_string(reprt, quiz_obj, quiz_nme, questions):
         current_question = questions[q_num]
         
         report_str += "\n\n\n"
-        report_str += "----- " + quiz_nme + " -----" + str(q_num + 1) + " / " + str(len(questions)) + " -----\n\n"
+        report_str += "----- " + quiz_obj.get_name() + " -----" + str(q_num + 1) + " / " + str(len(questions)) + " -----\n\n"
         report_str += current_question.get_question() + "\n\n"
         
         # Multiple choice
@@ -375,7 +444,7 @@ def get_result_frm_q_obj(curnt_quiz, question):
 
 
 def randomize_questions(quiz):
-    temp_questions = quiz[1].get_questions().copy()
+    temp_questions = quiz.get_questions().copy()
     random_qnas = []
     
     while len(temp_questions) > 0:
@@ -392,6 +461,9 @@ def randomize_questions(quiz):
 def get_quizes():
     playable_quizes = []
     
+    # If file does not exist create directory
+    if not invalid.dir_exists(CONST.QUIZES_DIR):
+        os.mkdir(CONST.QUIZES_DIR)
     # List files in directory
     file_names = os.listdir(CONST.QUIZES_DIR)
     
@@ -405,7 +477,7 @@ def get_quizes():
                 try:
                     json_dict = json.load(f)
                     
-                    playable_quizes.append((file, create_quiz(json_dict)))
+                    playable_quizes.append(create_quiz(json_dict, file))
                 except Exception as error:
                     print("JSON failed to parse quiz:", str(file) + " ERROR: " + str(error))
             
@@ -416,10 +488,25 @@ def get_quizes():
     
     return playable_quizes
 
-def create_quiz(quiz_json):
+
+def remove_file_ext(file_name):
+    splitted_value = file_name.split(".")
+    splitted_value.remove(splitted_value[-1])
+    
+    new_value = "".join(splitted_value)
+    return new_value
+
+
+def create_quiz(quiz_json, file_name):
     # Create quiz
     quiz = Quiz()
     qnas = []
+    
+    # Remove file extention from name
+    quiz_name = remove_file_ext(file_name)
+    
+    # Give the quiz a name
+    quiz.set_name(quiz_name)
     
     # raise error if "questions" key does NOT exist
     if not quiz_json.get("questions"):
@@ -480,9 +567,17 @@ def validate_question_entry(question_dict, questn_num):
 
 
 class Quiz():
-    def __init__(self, questions=[], results={}):
+    def __init__(self, name="NULL", questions=[], results={}):
+        self.__name = name
         self.__questions = questions
         self.__results = results
+    
+    # Name getter/setter
+    def get_name(self):
+        return self.__name
+    
+    def set_name(self, name):
+        self.__name = name
     
     # Questions getter/setter
     def get_questions(self):
