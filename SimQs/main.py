@@ -140,6 +140,18 @@ def get_valid_quiz_plying_selection(curnt_questn):
     return selection
 
 
+def get_valid_quit_quiz_selection():
+    selection = add_inpt_val.get_letter("> ")
+
+    # Invalid selection
+    while invalid.is_invalid_quit_quiz_command(selection):
+        print("Error: Invalid selection, try again")
+        selection = add_inpt_val.get_letter("> ")
+
+    return selection
+
+
+
 def get_valid_report_mnu_selection():
     selection = add_inpt_val.get_letter("> ")
                 
@@ -188,9 +200,22 @@ def execute_quiz_mnu_cmd(selc, defaults):
         rnning_quiz = False
     
     elif selc == CONST.QUIT:
-        continue_quit = inpt_val.get_yes_or_no("Are you sure you want to quit the quiz? Progress will NOT be saved.(yes/no)", prompt="> ")
+        print("""
+                Select a quiting option:
+                    Q: quit WITHOUT saving
+                    S: quit WITH saving
+                    B: go back to quiz""")
+        quit_option = get_valid_quit_quiz_selection()
+
+        if quit_option == "S":
+            save_quiz(currnt_quiz, currnt_qutn_num, quiz_questns)
+            mnu = "SELECTION_MENU"
+            currnt_quiz.set_results({})
+            currnt_quiz = None
+            quiz_questns = None
+            rnning_quiz = False
         
-        if continue_quit:
+        elif quit_option == CONST.QUIT:
             mnu = "SELECTION_MENU"
             currnt_quiz.set_results({})
             currnt_quiz = None
@@ -198,7 +223,7 @@ def execute_quiz_mnu_cmd(selc, defaults):
             rnning_quiz = False
         
     else:
-        currnt_quiz.append_results(quiz_questns[currnt_qutn_num], selc)
+        currnt_quiz.append_results(quiz_questns[currnt_qutn_num].get_id(), selc)
     
     return (currnt_quiz, currnt_qutn_num, rnning_quiz, quiz_questns, mnu)
 
@@ -437,8 +462,8 @@ def count_values(dictionary, value):
 def get_result_frm_q_obj(curnt_quiz, question):
     current_results = curnt_quiz.get_results()
     
-    if current_results.get(question):
-        return current_results[question]
+    if current_results.get(question.get_id()):
+        return current_results[question.get_id()]
     else:
         return ""
 
@@ -549,7 +574,7 @@ def create_quiz(quiz_json, file_name):
                 raise Exception("This error message will never be displayed, unless you some how got past the answer type validation.")
         
         # Append question into list
-        qnas.append(Qna(ask, answer_type, correct_answer, possible_answers))
+        qnas.append(Qna(question_num, ask, answer_type, correct_answer, possible_answers))
     # Set the quiz questions
     quiz.set_questions(qnas)
     return quiz
@@ -564,6 +589,27 @@ def validate_question_entry(question_dict, questn_num):
         raise Exception("'correct answer' entry does not exist in question #" + str(questn_num + 1))
     if not question_dict.get("possible answers"):
         raise Exception("'possible answers' entry does not exist in question #" + str(questn_num + 1))
+
+
+def get_questns_id_list(questions_list):
+    values = []
+
+    for quest in questions_list:
+        values.append(quest.get_id())
+    return values
+
+
+def save_quiz(quiz, current_questn_num, questns):
+    if not invalid.dir_exists(CONST.QUIZ_SAVE_DIR):
+        os.mkdir(CONST.QUIZ_SAVE_DIR)
+
+    with open(os.path.join(CONST.QUIZ_SAVE_DIR, quiz.get_name()), "w") as sav_f:
+        questions = get_questns_id_list(questns)
+        results = quiz.get_results()
+
+        values_to_save = {"results": results, "question order": questions, "current question number": current_questn_num}
+
+        sav_f.write(json.dumps(values_to_save))
 
 
 class Quiz():
@@ -598,12 +644,20 @@ class Quiz():
 
 
 class Qna():
-    def __init__(self, question="", awr_type="", cor_answer="", answers=[]):
+    def __init__(self, id_=0, question="", awr_type="", cor_answer="", answers=[]):
+        self.__id = id_
         self.__question = question
         self.__awr_type = awr_type.upper()
         self.__cor_answer = cor_answer
         self.__answers = answers
+
+    # Id getter/setter
+    def get_id(self):
+        return self.__id
     
+    def set_id(self, id_):
+        self.__id = id_
+
     # Question getter/setter
     def get_question(self):
         return self.__question

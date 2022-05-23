@@ -64,6 +64,22 @@ def is_invalid_quiz_command(user_selection, current_question):
     return True
 
 
+# Quit quiz commands
+def is_invalid_quit_quiz_command(user_selection):
+    # Go back to quiz
+    if user_selection == "B":
+        return False
+
+    # Quit without saving 
+    if user_selection == "Q":
+        return False
+
+    # Quit with saving
+    if user_selection == "S":
+        return False
+    return True
+
+
 # Report commands
 def is_invalid_report_command(user_selection):
     # Output is output the report to file

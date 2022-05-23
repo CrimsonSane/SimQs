@@ -1,5 +1,6 @@
 QUIZES_DIR = "Quizes/"
 QUIZ_REPORT_DIR = "Quiz reports/"
+QUIZ_SAVE_DIR = "Saved quizes/"
 
 NUM_TO_ALPHA = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 QUIT = "Q"
