@@ -145,3 +145,18 @@ def dir_exists(dir_path):
     
     return False
 
+
+# returns true if selection to load or not load quiz is invalid
+def is_invalid_quiz_load(user_selection):
+    if user_selection == "L":
+        return False
+
+    elif user_selection == "D":
+        return False
+
+    elif user_selection == CONST.QUIT:
+        return False
+
+    return True
+
+

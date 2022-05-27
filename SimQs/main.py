@@ -21,6 +21,7 @@ def main():
     quizes = []
     current_quiz = None
     quiz_questions = None
+    load_save = False
     
     while running:
         # Switching to different menus
@@ -48,7 +49,7 @@ def main():
                 selection = get_valid_quiz_sel_mnu_selection(quizes)
                 
                 # Execute command
-                current_quiz, menu = execute_quiz_sel_mnu_cmd(selection, quizes)
+                current_quiz, menu, load_save = execute_quiz_sel_mnu_cmd(selection, quizes)
                 
             case "QUIZ":
                 # Catch any problems that may occur if the user happens to some how unload the current quiz
@@ -60,6 +61,12 @@ def main():
                 current_qutn_num = 0
                 # Randomize the question order
                 quiz_questions = randomize_questions(current_quiz)
+
+                # Try to load save file if allowed
+                if load_save:
+                    results, current_qutn_num, quiz_questions = get_save_info(current_quiz, current_qutn_num, quiz_questions)
+                    current_quiz.set_results(results)
+                    print(results, current_quiz.get_results(), quiz_questions)
                 
                 while running_quiz:
                     current_question = quiz_questions[current_qutn_num]
@@ -151,6 +158,16 @@ def get_valid_quit_quiz_selection():
     return selection
 
 
+def get_valid_quiz_load_option():
+    selection = add_inpt_val.get_letter("> ")
+
+    # Invalid selection
+    while invalid.is_invalid_quiz_load(selection):
+        print("Error: Invalid selection, try again")
+        selection = add_inpt_val.get_letter("> ")
+
+    return selection
+
 
 def get_valid_report_mnu_selection():
     selection = add_inpt_val.get_letter("> ")
@@ -175,11 +192,31 @@ def execute_strt_mnu_cmd(selc):
 
 def execute_quiz_sel_mnu_cmd(selc, quizes):
     if selc != CONST.QUIT:
+        load_sav = False
+
         # Changes current quiz and menu
-        return (quizes[CONST.NUM_TO_ALPHA.index(selc)], "QUIZ")
+
+        # Find quiz save
+        if quizes[CONST.NUM_TO_ALPHA.index(selc)].get_name() in get_list_of_saves():
+            # Ask user if they want to load save or to disregard save
+            print("""
+                    Quiz save was found! 
+                    Do you want to load the save or disgard?
+
+                    L - load
+                    D - disgard
+                    Q - back""")
+            choice = get_valid_quiz_load_option()
+
+            if choice == "L":
+                load_sav = True
+            elif choice == CONST.QUIT:
+                return (None, "SELECTION_MENU", load_sav)
+
+        return (quizes[CONST.NUM_TO_ALPHA.index(selc)], "QUIZ", load_sav)
     
     elif selc == CONST.QUIT:
-        return (None, "START_MENU")
+        return (None, "START_MENU", False)
 
 
 def execute_quiz_mnu_cmd(selc, defaults):
@@ -245,7 +282,7 @@ def execute_report_cmd(selc, defaults, report):
         currnt_quiz.set_results({})
     
     elif selc == CONST.QUIT:
-        continue_quit = inpt_val.get_yes_or_no("Are you sure you want to quit the report? Progress will NOT be saved.(yes/no)", prompt="> ")
+        continue_quit = inpt_val.get_yes_or_no("Are you sure you want to quit the report? Output will NOT be saved.(yes/no)", prompt="> ")
         if continue_quit:
             mnu = "SELECTION_MENU"
             currnt_quiz.set_results({})
@@ -610,6 +647,51 @@ def save_quiz(quiz, current_questn_num, questns):
         values_to_save = {"results": results, "question order": questions, "current question number": current_questn_num}
 
         sav_f.write(json.dumps(values_to_save))
+
+
+def get_save_info(quiz, quest_num, questns):
+    results = {}
+    quest_number = 0
+    questions = []
+
+    with open(os.path.join(CONST.QUIZ_SAVE_DIR, quiz.get_name()), "r") as sav_f:
+        try:
+            file_dict = json.load(sav_f)
+            
+            # Returns results as the key has to be an integer
+            for key, answer in file_dict["results"].items():
+                results[int(key)] = answer
+            
+            quest_number = file_dict["current question number"]
+
+            # Get the question order by id
+            questn_order = file_dict["question order"]
+            
+            temp_questions = quiz.get_questions().copy()
+
+            # Get question objects and organize based on id
+            for quest_id in questn_order:
+                for quest in temp_questions:
+
+                    if quest.get_id() == quest_id:
+                        questions.append(quest)
+                        temp_questions.remove(quest)
+
+            return results, quest_number, questions
+
+        except Exception as error:
+            print("Invalid save format: ", error)
+
+    return {}, quest_num, questns
+
+
+def get_list_of_saves():
+    saves_list = []
+
+    for file in os.listdir(CONST.QUIZ_SAVE_DIR):
+        saves_list.append(file)
+
+    return saves_list
 
 
 class Quiz():
